@@ -21,7 +21,7 @@ pub static Z_FAR: f32 = 4000.0;
 /// Vertical field-of-view for perspective (radians).
 pub static FOV_Y: f32 = 1.1;
 /// Animation framerate (seconds/frame)
-pub static FRAMERATE: f64 = 1.0 / 60.0;
+pub static DEFAULT_FRAMERATE: f64 = 1.0 / 60.0;
 /// Calculate FPS over intervals of this length (seconds).
 pub static FPS_INTERVAL: f64 = 2.0;
 

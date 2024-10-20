@@ -11,6 +11,7 @@ pub struct Animation {
     pub name: Name,
     pub num_frames: u16,
     pub objects_curves: Vec<TRSCurves>,
+    pub fps: Option<u32>,
 }
 
 pub struct TRSCurves {
@@ -70,6 +71,8 @@ pub fn read_animation(base_cur: Cur, name: Name) -> Result<Animation> {
 
     let pivot_data = base_cur + pivot_data_off;
     let basis_data = base_cur + basis_data_off;
+
+    let mut fps = None;
 
     let objects_curves = object_offs.map(|curves_off| {
         let mut cur = base_cur + curves_off;
@@ -139,6 +142,8 @@ pub fn read_animation(base_cur: Cur, name: Name) -> Result<Animation> {
                 } else {
                     let info = CurveInfo::from_u32(cur.next::<u32>()?)?;
                     let off = cur.next::<u32>()?;
+
+                    fps = Some(vec![60, 30, 20][info.rate as usize]);
 
                     let start_frame = info.start_frame;
                     let end_frame = info.end_frame;
@@ -268,7 +273,7 @@ pub fn read_animation(base_cur: Cur, name: Name) -> Result<Animation> {
 
     }).collect::<Result<Vec<TRSCurves>>>()?;
 
-    Ok(Animation { name, num_frames, objects_curves })
+    Ok(Animation { name, num_frames, objects_curves, fps })
 }
 
 

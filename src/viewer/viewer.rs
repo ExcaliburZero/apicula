@@ -9,7 +9,7 @@ use crate::nitro::{Model, Animation, Pattern, MaterialAnimation};
 use crate::primitives::{Primitives, PolyType, DynamicState};
 use cgmath::{Matrix4, InnerSpace, Vector3, vec3, vec2};
 use super::fps::FpsCounter;
-use super::{FRAMERATE, BG_COLOR};
+use super::{DEFAULT_FRAMERATE, BG_COLOR};
 
 type Display = glium::Display<glium::glutin::surface::WindowSurface>;
 
@@ -150,6 +150,15 @@ impl Viewer {
         viewer.change_model(display, 0);
         viewer
     }
+    
+    pub fn get_frame_rate(&self) -> f64 {
+        if let Some(_) = self.animation_id() {
+            let anim = self.cur_animation(&self.db).unwrap();
+            1.0 / (anim.fps.unwrap() as f64)
+        } else {
+            DEFAULT_FRAMERATE
+        }
+    }
 
     /// Update state with the delta-time since last update. Called once before
     /// each frame.
@@ -169,7 +178,8 @@ impl Viewer {
             self.time_acc = 1.0;
         }
 
-        while self.time_acc > FRAMERATE {
+        let frame_rate = self.get_frame_rate();
+        while self.time_acc > frame_rate {
             if !self.anim_state.single_stepping {
                 self.next_anim_frame();
             }
@@ -179,7 +189,7 @@ impl Viewer {
             if !self.mat_anim_state.single_stepping {
                 self.next_mat_anim_frame();
             }
-            self.time_acc -= FRAMERATE;
+            self.time_acc -= frame_rate;
         }
     }
 
@@ -344,12 +354,13 @@ impl Viewer {
         ).unwrap();
         if let Some(anim_id) = self.animation_id() {
             let anim = self.cur_animation(&self.db).unwrap();
-            write!(s, "{anim_name}[{anim_id}/{num_anims}] ({cur_frame}/{num_frames}) === ",
+            write!(s, "{anim_name}[{anim_id}/{num_anims}] ({cur_frame}/{num_frames}) [animated at {fps}fps] === ",
                 anim_name = anim.name,
                 anim_id = anim_id,
                 num_anims = self.db.animations.len(),
                 cur_frame = self.anim_state.frame,
                 num_frames = anim.num_frames,
+                fps = 1.0 / self.get_frame_rate(),
             ).unwrap()
         } else {
             write!(s, "Rest Pose === ").unwrap()
