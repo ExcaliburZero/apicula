@@ -1,5 +1,9 @@
+use regex::Regex;
+
 use crate::cli::Args;
 use crate::errors::Result;
+
+type RgbaColor = (f32, f32, f32, f32);
 
 #[derive(Clone)]
 pub struct Config {
@@ -8,7 +12,7 @@ pub struct Config {
     /// Initial window height.
     pub window_height: u32,
     /// Window background color.
-    pub bg_color: (f32, f32, f32, f32),
+    pub bg_color: RgbaColor,
     /// Near-plane distance for perspective.
     pub z_near: f32,
     /// Far-plane distance for perspective.
@@ -39,6 +43,34 @@ impl Default for Config {
 impl Config {
     pub fn from_cli_args(args: &Args) -> Result<Config> {
         let mut config = Config::default();
+
+        for (flag, value) in args.opt_args.iter() {
+            match *flag {
+                "window-width" => {config.window_width = value.clone().into_string().unwrap().parse::<u32>()?},
+                "window-height" => {config.window_height = value.clone().into_string().unwrap().parse::<u32>()?},
+                "animation-fps" => {config.animation_framerate = 1.0 / value.clone().into_string().unwrap().parse::<f64>()?},
+                "bg-color" => {config.bg_color = hex_code_to_color(&value.clone().into_string().unwrap())?},
+                _ => {},
+            }
+        }
+
         Ok(config)
+    }
+}
+
+fn hex_code_to_color(hex_code: &str) -> Result<RgbaColor> {
+    let hex_code_regex = Regex::new(r"#(?<red>[0-9a-fA-F][0-9a-fA-F])(?<green>[0-9a-fA-F][0-9a-fA-F])(?<blue>[0-9a-fA-F][0-9a-fA-F])(?<alpha>[0-9a-fA-F][0-9a-fA-F])?")?;
+
+    if let Some(caps) = hex_code_regex.captures(hex_code) {
+        let red = i64::from_str_radix(&caps["red"], 16)?;
+        let green = i64::from_str_radix(&caps["green"], 16)?;
+        let blue = i64::from_str_radix(&caps["blue"], 16)?;
+        let alpha = if let Some(a) = caps.name("alpha") {
+            i64::from_str_radix(a.as_str(), 16)?
+        } else { 255 };
+
+        Ok((red as f32 / 255.0, green as f32 / 255.0, blue as f32 / 255.0, alpha as f32 / 255.0))
+    } else {
+        bail!("{} is not a valid hex code of the format #RRGGBB or #RRGGBBAA", hex_code)
     }
 }
