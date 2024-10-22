@@ -1,20 +1,20 @@
 use super::config::Config;
 
 /// Tracks frames per second.
-pub struct FpsCounter {
+pub struct FpsCounter<'a> {
     fps: f64,
     time_acc: f64,
     frames_acc: f64,
-    config: Config,
+    config: &'a Config,
 }
 
-impl FpsCounter {
-    pub fn new(config: &Config) -> FpsCounter {
+impl<'a> FpsCounter<'a> {
+    pub fn new(config: &'a Config) -> FpsCounter<'a> {
         FpsCounter {
             fps: 0.0,
             time_acc: 0.0,
             frames_acc: 0.0,
-            config: config.clone(),
+            config: config,
         }
     }
 

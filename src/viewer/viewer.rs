@@ -13,11 +13,11 @@ use super::fps::FpsCounter;
 
 type Display = glium::Display<glium::glutin::surface::WindowSurface>;
 
-pub struct Viewer {
-    config: Config,
+pub struct Viewer<'b> {
+    config: &'b Config,
     db: Database,
     conn: Connection,
-    model_viewer: ModelViewer,
+    model_viewer: ModelViewer<'b>,
 
     /// ID of the current model.
     model_id: ModelId,
@@ -37,7 +37,7 @@ pub struct Viewer {
     /// Accumulator for time.
     time_acc: f64,
     /// Keeps track of the FPS.
-    fps_counter: FpsCounter,
+    fps_counter: FpsCounter<'b>,
     /// Direction of motion (for the WASD controls).
     move_vector: Vector3<f32>,
     /// Movement speed (for WASD) as an index into the SPEEDS array.
@@ -126,14 +126,14 @@ pub static CONTROL_HELP: &'static str =
     );
 
 
-impl Viewer {
-    pub fn new(display: &Display, config: &Config, db: Database, conn: Connection) -> Viewer {
+impl<'b> Viewer<'b> {
+    pub fn new(display: &Display, config: &'b Config, db: Database, conn: Connection) -> Viewer<'b> {
         let model_viewer = ModelViewer::new(&display, config);
 
         // Create a viewer for model 0
         assert!(db.models.len() > 0);
         let mut viewer = Viewer {
-            config: config.clone(),
+            config: config,
             db,
             conn,
             model_viewer,

@@ -21,12 +21,12 @@ type Display = glium::Display<glium::glutin::surface::WindowSurface>;
 /// * use update_vertices after, eg, you move to a new animation frame of the
 ///   same model
 /// * use update_materials when the textures on the materials change
-pub struct ModelViewer {
+pub struct ModelViewer<'a> {
     pub eye: Eye,
     pub aspect_ratio: f32,
     pub light_on: bool,
 
-    config: Config,
+    config: &'a Config,
 
     /// Program for unlit materials (using vertex colors)
     unlit_program: Program,
@@ -51,8 +51,8 @@ pub enum MaterialTextureBinding {
     ImageId(ImageId),
 }
 
-impl ModelViewer {
-    pub fn new(display: &Display, config: &Config) -> ModelViewer {
+impl<'a> ModelViewer<'a> {
+    pub fn new(display: &Display, config: &'a Config) -> ModelViewer<'a> {
         let unlit_vertex_shader = include_str!("shaders/vert_unlit.glsl");
         let lit_vertex_shader = include_str!("shaders/vert_lit.glsl");
         let fragment_shader = include_str!("shaders/frag.glsl");
@@ -83,7 +83,7 @@ impl ModelViewer {
 
         ModelViewer {
             eye: Default::default(),
-            config: config.clone(),
+            config: config,
             aspect_ratio: 1.0,
             light_on: true,
             unlit_program,
