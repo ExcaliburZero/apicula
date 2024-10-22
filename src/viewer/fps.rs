@@ -1,18 +1,20 @@
-use super::FPS_INTERVAL;
+use super::config::Config;
 
 /// Tracks frames per second.
 pub struct FpsCounter {
     fps: f64,
     time_acc: f64,
     frames_acc: f64,
+    config: Config,
 }
 
 impl FpsCounter {
-    pub fn new() -> FpsCounter {
+    pub fn new(config: &Config) -> FpsCounter {
         FpsCounter {
             fps: 0.0,
             time_acc: 0.0,
             frames_acc: 0.0,
+            config: config.clone(),
         }
     }
 
@@ -24,7 +26,7 @@ impl FpsCounter {
         self.time_acc += dt;
         self.frames_acc += 1.0;
 
-        if self.time_acc > FPS_INTERVAL {
+        if self.time_acc > self.config.fps_interval {
             self.fps = self.frames_acc / self.time_acc;
             self.time_acc = 0.0;
             self.frames_acc = 0.0;

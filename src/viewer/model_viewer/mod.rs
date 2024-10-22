@@ -9,7 +9,7 @@ use glium::{VertexBuffer, IndexBuffer, Frame, Surface, Program};
 use crate::nitro::Model;
 use crate::primitives::{Primitives, DrawCall, Vertex};
 use self::texture_cache::{TextureCache, ImageId};
-use super::{Z_NEAR, Z_FAR, FOV_Y};
+use super::config::Config;
 
 type Display = glium::Display<glium::glutin::surface::WindowSurface>;
 
@@ -25,6 +25,8 @@ pub struct ModelViewer {
     pub eye: Eye,
     pub aspect_ratio: f32,
     pub light_on: bool,
+
+    config: Config,
 
     /// Program for unlit materials (using vertex colors)
     unlit_program: Program,
@@ -50,7 +52,7 @@ pub enum MaterialTextureBinding {
 }
 
 impl ModelViewer {
-    pub fn new(display: &Display) -> ModelViewer {
+    pub fn new(display: &Display, config: &Config) -> ModelViewer {
         let unlit_vertex_shader = include_str!("shaders/vert_unlit.glsl");
         let lit_vertex_shader = include_str!("shaders/vert_lit.glsl");
         let fragment_shader = include_str!("shaders/frag.glsl");
@@ -81,6 +83,7 @@ impl ModelViewer {
 
         ModelViewer {
             eye: Default::default(),
+            config: config.clone(),
             aspect_ratio: 1.0,
             light_on: true,
             unlit_program,
@@ -163,10 +166,10 @@ impl ModelViewer {
         // Model-view-projection matrix
         let model_view = self.eye.model_view();
         let persp: Matrix4<f32> = PerspectiveFov {
-            fovy: Rad(FOV_Y),
+            fovy: Rad(self.config.fov_y),
             aspect: self.aspect_ratio,
-            near: Z_NEAR,
-            far: Z_FAR,
+            near: self.config.z_near,
+            far: self.config.z_far,
         }.into();
         let model_view_persp = persp * model_view;
         let model_view_persp: [[f32; 4]; 4] = model_view_persp.into();
