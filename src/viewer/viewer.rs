@@ -8,15 +8,16 @@ use winit::keyboard::{KeyCode, ModifiersState};
 use crate::nitro::{Model, Animation, Pattern, MaterialAnimation};
 use crate::primitives::{Primitives, PolyType, DynamicState};
 use cgmath::{Matrix4, InnerSpace, Vector3, vec3, vec2};
+use super::config::Config;
 use super::fps::FpsCounter;
-use super::{FRAMERATE, BG_COLOR};
 
 type Display = glium::Display<glium::glutin::surface::WindowSurface>;
 
-pub struct Viewer {
+pub struct Viewer<'b> {
+    config: &'b Config,
     db: Database,
     conn: Connection,
-    model_viewer: ModelViewer,
+    model_viewer: ModelViewer<'b>,
 
     /// ID of the current model.
     model_id: ModelId,
@@ -36,7 +37,7 @@ pub struct Viewer {
     /// Accumulator for time.
     time_acc: f64,
     /// Keeps track of the FPS.
-    fps_counter: FpsCounter,
+    fps_counter: FpsCounter<'b>,
     /// Direction of motion (for the WASD controls).
     move_vector: Vector3<f32>,
     /// Movement speed (for WASD) as an index into the SPEEDS array.
@@ -125,13 +126,14 @@ pub static CONTROL_HELP: &'static str =
     );
 
 
-impl Viewer {
-    pub fn new(display: &Display, db: Database, conn: Connection) -> Viewer {
-        let model_viewer = ModelViewer::new(&display);
+impl<'b> Viewer<'b> {
+    pub fn new(display: &Display, config: &'b Config, db: Database, conn: Connection) -> Viewer<'b> {
+        let model_viewer = ModelViewer::new(&display, config);
 
         // Create a viewer for model 0
         assert!(db.models.len() > 0);
         let mut viewer = Viewer {
+            config: config,
             db,
             conn,
             model_viewer,
@@ -143,7 +145,7 @@ impl Viewer {
             pat_state: AnimState::none(),
             mat_anim_state: AnimState::none(),
             time_acc: 0.0,
-            fps_counter: FpsCounter::new(),
+            fps_counter: FpsCounter::new(config),
             move_vector: vec3(0.0, 0.0, 0.0),
             speed_idx: DEFAULT_SPEED_IDX,
         };
@@ -169,7 +171,7 @@ impl Viewer {
             self.time_acc = 1.0;
         }
 
-        while self.time_acc > FRAMERATE {
+        while self.time_acc > self.config.animation_framerate {
             if !self.anim_state.single_stepping {
                 self.next_anim_frame();
             }
@@ -179,12 +181,12 @@ impl Viewer {
             if !self.mat_anim_state.single_stepping {
                 self.next_mat_anim_frame();
             }
-            self.time_acc -= FRAMERATE;
+            self.time_acc -= self.config.animation_framerate;
         }
     }
 
     pub fn draw(&self, frame: &mut Frame) {
-        frame.clear_color_srgb_and_depth(BG_COLOR, 1.0);
+        frame.clear_color_srgb_and_depth(self.config.bg_color, 1.0);
         self.model_viewer.draw(frame, self.cur_model(&self.db))
     }
 

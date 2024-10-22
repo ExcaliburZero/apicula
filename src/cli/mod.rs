@@ -86,6 +86,22 @@ static ALL_ANIMATIONS_OPT: Opt = Opt {
     short: "", long: "all-animations", flag: true,
     help: "--all-animations          don't guess which joint anims go with a model, just try them all",
 };
+static WINDOW_WIDTH_OPT: Opt = Opt {
+    short: "", long: "window-width", flag: false,
+    help: "--window-width <width>    width in pixels of viewer window",
+};
+static WINDOW_HEIGHT_OPT: Opt = Opt {
+    short: "", long: "window-height", flag: false,
+    help: "--window-height <height>  height in pixels of viewer window",
+};
+static ANIMATION_FPS_OPT: Opt = Opt {
+    short: "", long: "animation-fps", flag: false,
+    help: "--animation-fps <fps>     speed in frames/second to play animations at",
+};
+static BG_COLOR_OPT: Opt = Opt {
+    short: "", long: "bg-color", flag: false,
+    help: "--bg-color <hex code>     background color to use for the viewer",
+};
 static MORE_TEXTURES_OPT: Opt = Opt {
     short: "", long: "more-textures", flag: true,
     help: "--more-textures           try to dump images for unused textures too",
@@ -199,7 +215,7 @@ fn show_info_help_and_exit() -> ! {
 }
 
 
-static VIEW_OPTS: &[&Opt] = &[&ALL_ANIMATIONS_OPT, &HELP_OPT];
+static VIEW_OPTS: &[&Opt] = &[&ALL_ANIMATIONS_OPT, &WINDOW_WIDTH_OPT, &WINDOW_HEIGHT_OPT, &ANIMATION_FPS_OPT, &BG_COLOR_OPT, &HELP_OPT];
 
 fn view(p: &mut Parse) {
     parse_opts(p, VIEW_OPTS);

@@ -2,19 +2,20 @@ use glium::winit;
 use winit::dpi::{PhysicalSize, PhysicalPosition};
 use winit::keyboard::ModifiersState;
 use super::viewer::Viewer;
+use super::config::Config;
 use crate::db::Database;
 use crate::connection::Connection;
 
-pub fn main_loop(db: Database, conn: Connection) {
+pub fn main_loop(config: &Config, db: Database, conn: Connection) {
     let event_loop = winit::event_loop::EventLoop::builder()
         .build()
         .expect("event loop building");
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
-        .with_inner_size(super::WINDOW_WIDTH, super::WINDOW_HEIGHT)
+        .with_inner_size(config.window_width, config.window_height)
         .with_vsync(true)
         .build(&event_loop);
 
-    let mut viewer = Viewer::new(&display, db, conn);
+    let mut viewer = Viewer::new(&display, config, db, conn);
 
     struct State {
         last_mouse_xy: PhysicalPosition<f64>,
