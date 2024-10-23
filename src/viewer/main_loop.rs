@@ -44,9 +44,22 @@ pub fn main_loop(config: &Config, db: Database, conn: Connection) {
             Ev::WindowEvent { event, .. } => match event {
                 WEv::RedrawRequested => {
                     state.last_time = state.cur_time;
-                    state.cur_time = time::precise_time_ns();
-                    let dt_in_ns = state.cur_time.wrapping_sub(state.last_time);
-                    let dt = dt_in_ns as f64 / 1_000_000_000.0;
+
+                    let mut dt;
+                    loop {
+                        state.cur_time = time::precise_time_ns();
+                        let dt_in_ns = state.cur_time.wrapping_sub(state.last_time);
+                        dt = dt_in_ns as f64 / 1_000_000_000.0;
+
+                        match config.max_render_framerate {
+                            Some(max_render_framerate) => {
+                                if dt >= max_render_framerate {
+                                    break
+                                }
+                            },
+                            _ => {break}
+                        }
+                    }
 
                     viewer.update(&display, dt);
 
