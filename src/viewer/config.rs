@@ -21,6 +21,8 @@ pub struct Config {
     pub fov_y: f32,
     /// Animation framerate (seconds/frame)
     pub animation_framerate: f64,
+    /// Limits the maximum FPS the viewer is rendered at in order to reduce CPU usage (seconds/frame).
+    pub max_render_framerate: Option<f64>,
     /// Calculate FPS over intervals of this length (seconds).
     pub fps_interval: f64,
 }
@@ -35,6 +37,7 @@ impl Default for Config {
             z_far: 4000.0,
             fov_y: 1.1,
             animation_framerate: 1.0 / 60.0,
+            max_render_framerate: None,
             fps_interval: 2.0,
         }
     }
@@ -49,6 +52,7 @@ impl Config {
                 "window-width" => {config.window_width = value.clone().into_string().unwrap().parse::<u32>()?},
                 "window-height" => {config.window_height = value.clone().into_string().unwrap().parse::<u32>()?},
                 "animation-fps" => {config.animation_framerate = 1.0 / value.clone().into_string().unwrap().parse::<f64>()?},
+                "max-render-fps" => {config.max_render_framerate = Some(1.0 / value.clone().into_string().unwrap().parse::<f64>()?)},
                 "bg-color" => {config.bg_color = hex_code_to_color(&value.clone().into_string().unwrap())?},
                 _ => {},
             }

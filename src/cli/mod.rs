@@ -94,6 +94,10 @@ static WINDOW_HEIGHT_OPT: Opt = Opt {
     short: "", long: "window-height", flag: false,
     help: "--window-height <height>  height in pixels of viewer window",
 };
+static MAX_RENDER_FPS_OPT: Opt = Opt {
+    short: "", long: "max-render-fps", flag: false,
+    help: "--max-render-fps <fps>    maximum speed in frames/second to render the viewer at",
+};
 static ANIMATION_FPS_OPT: Opt = Opt {
     short: "", long: "animation-fps", flag: false,
     help: "--animation-fps <fps>     speed in frames/second to play animations at",
@@ -215,7 +219,7 @@ fn show_info_help_and_exit() -> ! {
 }
 
 
-static VIEW_OPTS: &[&Opt] = &[&ALL_ANIMATIONS_OPT, &WINDOW_WIDTH_OPT, &WINDOW_HEIGHT_OPT, &ANIMATION_FPS_OPT, &BG_COLOR_OPT, &HELP_OPT];
+static VIEW_OPTS: &[&Opt] = &[&ALL_ANIMATIONS_OPT, &WINDOW_WIDTH_OPT, &WINDOW_HEIGHT_OPT, &ANIMATION_FPS_OPT, &MAX_RENDER_FPS_OPT, &BG_COLOR_OPT, &HELP_OPT];
 
 fn view(p: &mut Parse) {
     parse_opts(p, VIEW_OPTS);
